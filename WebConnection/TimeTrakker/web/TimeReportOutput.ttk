@@ -1,0 +1,220 @@
+<%
+   lcLastProject = ""
+   lnGroupHourTotals = 0
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= pcReportTitle %></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" />
+    <link href="~/css/application.css" rel="stylesheet" />
+
+
+    <style type="text/css">
+        html {
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #333;
+            background-color: #fff;
+        }
+
+        .page {
+            border: solid 1px silver;
+            border-right: solid 2px silver;
+            border-bottom: solid 2px silver;
+            text-align: left;
+            background: white;
+            padding: 30px;
+            margin: 0 auto;
+        }
+
+        .item {
+            padding: 10px;
+            border-bottom: dashed 1px teal;
+        }
+
+        .title {
+            font-size: 1.15em;
+            font-weight: bold;
+            color: #476f90;
+        }
+
+        .groupheader {
+            background: steelblue;
+            color: white;
+            font-weight: bold;
+            margin-top: 30px;
+            padding: 5px;
+            font-size: 1.2em;
+        }
+
+        .grouptotal {
+            text-align: right;
+            font-size: 10pt;
+            font-weight: bold;
+            color: maroon;
+            margin: 7px;
+        }
+
+        .hours-display {
+            text-align: right;
+            font-style: italic;
+        }
+
+        .total-hours {
+            color: steelblue;
+        }
+
+        @media(max-width: 767px) {
+            .hours-display {
+                margin-top: 5px;
+            }
+
+            .total-hours {
+                display: inline;
+            }
+        }
+
+        @media(max-width: 767px) {
+            .page {
+                width: 80%;
+                border: none;
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="page" class="page">
+            <div style="float:right;text-align: right;">
+                From: <%= poReportParms.DateStart %><br />
+                To: <%= poReportParms.DateEnd %>
+            </div>
+
+            <div class="bigtext">
+                <h2><%= ttConfig.cCompanyName %></h2>
+                <h3 style="margin: 4px;">Time Sheet Report</h3>
+            </div>
+
+            <% SCAN %>
+            <% if __ProjectChanged() %>
+            <div class="groupheader">
+                <div style="float:right;"><small><%= company %></small></div>
+                <%= projname %>
+            </div>
+            <% endif %>
+
+            <div class="item">
+                <div class="row">
+                    <div class="col-sm-1">
+                        <i class="fa fa-2x fa-fw float-left fa-<%= __EntryIcon() %>"></i>
+                    </div>
+                    <div class="col-sm-8">
+                        <a class="title" href="punchout.ttk?id=<%= Pk %>"><%= TEntries.Title %></a>
+                        <br />
+                        <small><%= Markdown(Descript)  %></small>
+                    </div>
+                    <div class="col-sm-3 small hours-display">
+                        <%= ShortDate(TimeIn,3) %>
+                        <div class="total-hours"><%= ToHoursAndMinutes(TotalHours) %></div>
+                        <!--<a id="btnDeleteButton" href="javascript:{}" onclick='deleteEntry(24988,this)' class="hoverbutton"
+                           data-id="24988"><i class="fa fa-remove error"></i></a>
+                        <a id="btnToggleBillStatus" href="javascript:{}" class="hoverbutton notbilled" data-id="24988">&nbsp;&nbsp;&nbsp;&nbsp;</a>-->
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+
+            </div>
+
+            <!--<div class="item">
+                <div class="title"><%= Title %></div>
+
+                <table cellpadding="5" style="width: 100%">
+                    <tr>
+                        <td style="min-width: 70px;">
+                            <small>
+                                <%=ShortDate(TimeIn,2) %><br />
+                                <%=ShortDate(Timeout,2) %>
+                            </small>
+                        </td>
+                        <td>
+                            <%= Descript %>
+                        </td>
+                        <td style="width:100px;text-align: right;">
+                            <%= ToHoursAndMinutes(TotalHours) %>
+                        </td>
+                    </tr>
+                </table>
+            </div>-->
+
+            <div class="grouptotal">
+                <%= __GroupTotals() %>
+            </div>
+            <% ENDSCAN %>
+
+            <br />
+            <center>
+                <hr />
+                <%= ttConfig.cReportFooter %>
+            </center>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+<%
+FUNCTION __ProjectChanged()
+
+llChanged = .F.
+IF lcLastProject != ProjName
+   llChanged = .T.
+   lcLastProject = ProjName
+ENDIF
+
+RETURN llChanged
+ENDFUNC
+
+***
+FUNCTION __GroupTotals()
+LOCAL lcOutput, llEndGroup, lnProjPk
+
+lnGroupHourTotals = lnGroupHourTotals + TotalHours
+
+lnProjPk = ProjectPk
+SKIP
+
+llEndOfGroup =  EOF() OR lnProjPk != ProjectPk
+SKIP -1
+
+IF !llEndOfGroup
+   RETURN ""
+ENDIF
+
+lcOutput = "Total hours: " + ToHoursAndMinutes( lnGroupHourTotals) + " <small>(" + TRANS(lnGroupHourTotals) + ")</small>"
+lnGroupHourTotals = 0
+RETURN lcOutput
+
+
+***
+FUNCTION __EntryIcon()
+    lcBaseStyle = [font-size: 1.8em;margin-right: 10px !important;"]
+    IF (Billed)
+      return [file-invoice-dollar far" style="color: green; padding-bottom: 20px; font-size: 1.3em;] + lcBaseStyle
+   ENDIF
+   IF (PunchedOut)
+      return [user-clock far" style="color: darkgoldenrod; padding-bottom: 20px;] + lcBaseStyle
+   ENDIF
+
+   *** Open
+   return [arrow-alt-circle-down far" style="color: orange;padding-bottom: 20px;] + lcBaseStyle
+ENDFUNC
+%>

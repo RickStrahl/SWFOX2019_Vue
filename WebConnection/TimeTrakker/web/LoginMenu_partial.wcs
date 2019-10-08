@@ -1,0 +1,12 @@
+﻿<% if (!Process.lIsAuthenticated) %>
+	<a href="login.ttk">
+		<i class="fa fa-lock"></i>
+		Sign in
+	</a>
+<% else %>
+	<a href="logout.ttk">
+		<i class="fa fa-unlock"></i>
+		Sign out
+		<img title="<%= Process.cAuthenticatedName %>" src="<%= GravatarLink(Process.cAuthenticatedUser,24) %>" />
+	</a>
+<% endif %>

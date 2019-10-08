@@ -1,0 +1,110 @@
+<%
+	* VS Addin Comment: SourceFile="~\..\deploy\ttProcess.PRG"
+	pcPageTitle = "Entry"
+    
+%>
+<% Layout="~/views/_layoutpage.wcs" %>
+
+<div class="container">
+    <div class="btn-group btn-group-sm margin-bottom" role="group" aria-label="Entry operations">
+        <a href="~/EntryBrowser.ttk" class="btn btn-outline-primary btn-sm">
+            <i class="fa fa-list-alt"></i>
+            List
+        </a>
+        <a href="~/punchout.ttk?id=<%= poEntry.Pk %>" class="btn btn-outline-primary btn-sm">
+            <i class="fa fa-edit"></i>
+            Edit
+        </a>
+        <a href="" class="btn btn-outline-primary btn-sm">
+            <i class="fa fa-times"></i>
+            Delete
+        </a>
+    </div>
+
+    <%= HtmlErrorDisplay(poError) %>
+
+    <div class="row">
+        <div class="col-sm-7">
+            <div class="form-group">
+                <label for="Title" class="control-label hidable">Title:</label>
+                <div class="entry-title">
+                    <%= poEntry.title %>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label hidable" for="customerpk">Company:</label>
+                <div>
+                    <a href="~/customer.ttk?id=<%= poEntry.CustomerPk %>">
+                        <%= poEntry.Customer.Company %>
+                    </a>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label hidable" for="projectpk">Project:</label>
+                <div>
+                    <a href="project.ttk?id=<%= poEntry.projectPk %>">
+                        <%= poEntry.Project.ProjName %>
+                    </a>
+                </div>
+
+            </div>
+
+            <hr />
+            <div>
+                <%= Markdown(poEntry.descript)  %>
+            </div>
+        </div>
+
+        <div id="TimeContainer" class="col-sm-5 well">
+            <div class="form-group">
+                <label for="timein" class="control-label hidable">Time in:</label>
+                <div style="font-weight: bold; font-size: 1.1em">
+                    <%= FormatValue(poEntry.TimeIn,"MMM dd, yyyy  HH:mm") %>
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <label for="TimeOut" class="control-label  hidable">Time Out:</label>
+                <div style="font-weight: bold; font-size: 1.1em">
+                    <%= FormatValue(poEntry.TimeOut,"MMM dd, yyyy  hh:mm") %>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="float-right">
+                    <b class="red-highlight">
+                        &nbsp; &nbsp; <span id="TotalHours" style="font-size: 1.1em">
+                            <%= ToHoursAndMinutes(poEntry.TotalHours) %>&nbsp;&nbsp;&nbsp;
+                        </span> <i class="fa fa-times"></i> &nbsp;&nbsp;
+                    </b>
+
+                    <b>Rate:</b> <b class="red-highlight"> <%= poEntry.Rate %></b>
+                </div>
+                <div class="separator" style="clear:both"></div>
+                <div class="float-right"><b>Item Total:</b> &nbsp;<span id="ItemTotal" class="red-highlight" style="font-size: 1.4em;"><%= TRANS(poEntry.ItemTotal,"$$,$$$.99") %></span></div>
+                <div class="float-left">
+                    <%= HtmlCheckBox("PunchedOut"," Punched out",poEntry.PunchedOut,[readonly="readonly" disabled="disabled"]) %>
+                    <br />
+                    <%= HtmlCheckBox("Billed"," Billed",poEntry.Billed) %>
+                </div>
+                <div class="clearfix" style="margin:0;padding:0"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- remove sections if you're not using them -->
+<% section="headers" %>
+
+<% endsection %>
+
+<% section="scripts" %>
+
+<% endsection %>

@@ -1,0 +1,10 @@
+SCREEN=On
+TITLE=Timetrakker - West Wind Web Connection
+EXCLUSIVE=OFF
+SAFETY=OFF
+CENTURY=ON
+STRICTDATE=0
+MEMOWIDTH=150
+_vfpstart=
+PATH=C:\wconnect\classes;C:\wconnect\;.\bus;.\data;
+*COMMAND=do wcstart

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<!-- saved from url=(0016)http://localhost -->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    
+    <meta charset="utf-8">
+    
+    <!--<script type="text/javascript" src="https://getfirebug.com/firebug-lite.js#startOpened,overrideConsole"></script>-->
+ 
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">    
+    
+    <link href="Theme.css" rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.10.2/css/all.css" rel="stylesheet" crossorigin="anonymous">
+    
+   
+    
+    <script src="jquery.min.js"></script>
+    <link href="vs2015.css" rel="stylesheet">
+    <script src="highlight.pack.js"></script>
+    <script src="preview.js" id="PreviewScript"></script>
+    <style>
+        .text-success { color: lightgreen; }        
+    </style>
+    
+    </head>
+    <body>    
+
+<button onclick="highlightJsBadge();" type="button">Reload Badges</button>
+
+<div id="MainContent">
+    <!-- Markdown Monster Content -->
+    <h1 id="programmatically-opening-windows-terminal-in-a-specific-folder">Programmatically Opening Windows Terminal in a Specific Folder</h1>
+<p>I've been using Windows Terminal for a while now since it was announced and made available <a href="https://www.microsoft.com/en-us/p/windows-terminal-preview/9n0dx20hk701?activetab=pivot:overviewtab">in the Windows Store</a> a few months back.</p>
+<p><img src="WindowsTerminal.png" alt=""></p>
+<p>There are lots of reasons to like this new Terminal and I don't want to get into all of them here. For me, the main reason is that it ships with a new <code>ConHost.exe</code>, that is considerably faster than the ConHost shipped with Windows which results in much faster terminal painting and scrolling.</p>
+<blockquote>
+<p>Keep in mind that Windows Terminal is a Terminal UI, plus the Console Host, and it's not a replacement for the Powershell, CMD or Bash shells or any other shell. The Terminal acts as a host to those shells that are loaded inside of it. Any shell application uses ConHost and the Terminal UI provides the hosting UI for these shell instances.</p>
+</blockquote>
+<p>A few reasons to check it out:</p>
+<ul>
+<li>Multiple tabs of Shell Instances</li>
+<li>Very fast text rendering</li>
+<li>Smooth text scaling</li>
+<li>Better terminal spec compliance</li>
+<li><a href="https://github.com/microsoft/terminal">Open source on GitHub</a> and under active development</li>
+<li>Many improvements expected&hellip;</li>
+</ul>
+<p>If you haven't yet, <a href="https://www.microsoft.com/en-us/p/windows-terminal-preview/9n0dx20hk701?WT.mc_id=-blog-scottha#&amp;activetab=pivot%3Aoverviewtab">check it out</a>&hellip;</p>
+<h2 id="no-automation-yet">No Automation Yet</h2>
+<p>The terminal works great, but it's still in the early stages of development. The core terminal functionality is rock solid,
+but the Windows UI shell and command interface are not very feature rich around the edges yet. It's all very utilitarian which is to be expected - after all the focus first and foremost is on building a better Console Host and it's an early preview.</p>
+<p>To make it easy to load, Microsoft provides a globally mapped executable - <code>wt.exe</code> - that you can launch without providing a path from anywhere in your system: From <code>Windows-R</code>, from another console or from another application using  <code>CreateProcess()</code> related APIs.</p>
+<p>You can launch Windows Terminal from anywhere with:</p>
+<pre><code>wt.exe
+</code></pre>
+<p>or by using the installed shortcut.</p>
+<p>One problem currently is that you can't easily automate the terminal application when it launches. There are <strong>no command line options</strong> supported yet (although there's discussion around this and it will come eventually), which means you can't start up the shell in a specific folder, execute a startup command or even pick a profile to start with.</p>
+<p>Recently I had several people asking about Windows Terminal in <a href="https://markdownmonster.west-wind.com">Markdown Monster</a>:</p>
+<blockquote>
+<p>How can I launch Windows Terminal as my Terminal Viewer in Markdown Monster</p>
+</blockquote>
+<p>The short answer is:</p>
+<ul>
+<li>You can customize the startup default Terminal Shell Profile</li>
+<li>Set <code>&quot;startingDirectory&quot; : &quot;%__CD__%&quot;</code><br>
+which starts the Shell out of the active OS folder</li>
+<li>Side effect: Windows shortcut launching launches from System folder</li>
+</ul>
+<p>For more information read on.</p>
+<h2 id="markdown-monster-and-terminals">Markdown Monster and Terminals</h2>
+<p>Markdown Monster has configuration options that let you customize the Terminal executable and Command Arguments so you can customize which terminal gets launched. The default is Powershell but it's easy to add a commandline to switch the <code>Cmd.exe</code> or WSL or another version of Bash. In the program the terminal launching is provided via context menu options from with from various folder related operations:</p>
+<p><img src="MarkdownMonsterTerminalContextMenu.png" alt=""></p>
+<p>MM does this from number of places:</p>
+<ul>
+<li>From the current document tab or document</li>
+<li>From the Folder Browser Folder</li>
+<li>From a file or folder in the Folder Browser</li>
+<li>From the Git Commit Dialog</li>
+</ul>
+<p>I get a lot of use out of that feature and I suspect others use it quite a bit as well especially given several of the Window Terminal requests.</p>
+<p>Unfortunately if I want to use <code>wt.exe</code> as my shell option, I can't pass the command parameters the way I currently do with the other shells, which is by using custom launch commands in the shell to change to a specific folder.</p>
+<p>For example for the default Powershell terminal the default is:</p>
+<pre><code class="language-ps">powershell.exe     -NoExit -Command  &quot;&amp; cd '{0}'&quot;
+</code></pre>
+<p>Since Windows Terminal is really a shell host, rather than an actual shell, you can't pass parameters directly to the shell. <code>wt.exe</code> currently doesn't have any command line parameters (AFAIK) so there's no way to set the working folder or push a command to the launched shell.</p>
+<p>I also can't specify which configured terminal to start up via an option  - basically all you can do is <code>wt.exe</code> without arguments at the moment and hope for the best.</p>
+<h2 id="automating-anyway">Automating anyway</h2>
+<p>To launch Windows Terminal programmatically I can use code like the following:</p>
+<pre><code class="language-csharp">var pi = new ProcessStartInfo{
+	FileName = &quot;wt.exe&quot;,
+	WorkingDirectory = &quot;c:\\temp&quot;, 	    
+	UseShellExecute = false		
+};
+Process.Start(pi);
+</code></pre>
+<p>and that works, <strong>except it fails to load out of the <code>WorkingDirectory</code></strong>.</p>
+<p>The problem with this approach is that you get only the default configuration, and the folder - even though set via the <code>WorkingDirectory</code> in the start info - is completely ignored by the <code>wt.exe</code> startup due to a default profile setting. Hrmph!</p>
+<h3 id="windows-terminal-profiles">Windows Terminal Profiles</h3>
+<p>The bad news is that you can't pass a working folder to <code>wt.exe</code> via a startup command yet.</p>
+<p>What you <strong>can</strong> do however is to customize the startup Profile and change it so the profile starts the shell in the currently active folder. You can make a change to a configuration key in the default Windows Terminal Shell profile.</p>
+<p>This works, but it means <strong>it's up to the user to customize their default profile</strong>, which isn't terribly user friendly, but it's a workaround that works for now.</p>
+<p>You can access the Windows Terminal profile JSON file by going to Settings in the Terminal itself using the down button:</p>
+<p><img src="SettingsOption.png" alt=""></p>
+<p>If you edit that file you'll find:</p>
+<p><img src="ProfilesInEditor.png" alt=""></p>
+<p>Here you can specify multiple profiles for each type of shell window, and you can add additional profiles of your own or customize the existing ones.</p>
+<p>Each profile has a <code>guid</code> key that uniquely identifies it and the startup profile is referenced by a <code>defaultProfile</code> key that points at one of these profile guids.</p>
+<h3 id="forcing-the-startup-path">Forcing the Startup Path</h3>
+<p>So in Markdown Monster I would love to use Windows Terminal and after searching around a little bit unsuccessfully to find command line options I posted a message on Twitter asking if anybody had gotten this launching WT in a specific folder to work.</p>
+<p><a href="https://twitter.com/ChristofJans">@ChristofJans</a> ended up helping me out:</p>
+<p><a href="https://twitter.com/RickStrahl/status/1169014217929908224"><img src="ProfileTweet.png" alt=""></a></p>
+<p>Here are the relevant keys:</p>
+<pre><code class="language-json">&quot;defaultProfile&quot;: &quot;{61c54bbd-c2c6-5271-96e7-009a87ff44bf}&quot;,
+...
+&quot;profiles&quot; : 
+[
+    {
+        &quot;commandline&quot; : &quot;powershell.exe&quot;,
+        &quot;guid&quot; : &quot;{61c54bbd-c2c6-5271-96e7-009a87ff44bf}&quot;,
+        &quot;name&quot; : &quot;Windows PowerShell&quot;,
+        &quot;startingDirectory&quot; : &quot;%USERPROFILE%&quot;,
+    },
+    { ... }
+]    
+</code></pre>
+<p>The gist of is that by default all profiles are configured with a hard coded <code>startingDirectory</code> setting to the user profile</p>
+<pre><code>&quot;startingDirectory&quot; : &quot;%USERPROFILE%&quot;,&quot;
+</code></pre>
+<p>You can change this folder to use the active working directory with the following change:</p>
+<pre><code class="language-json">&quot;startingDirectory&quot; : &quot;%__CD__%&quot;,
+</code></pre>
+<p>And voila WT now opens in the specified path if you set the path prior or provide a <code>WorkingDirectory</code> to the CreateProcess APIs.</p>
+<h3 id="side-effects">Side Effects</h3>
+<p>Unfortunately, there's a side effect: Now when you start <code>wt.exe</code> from your default shortcut it'll start in your SYSTEM folder:</p>
+<p><img src="StartingInSystem.png" alt=""></p>
+<p>That's not ideal, but I can live with that. It's easy to <code>cd ~</code>.</p>
+<p>I suspect there's a way to fix the startup path the Windows shortcut somehow by setting the shortcut starting directory, but - it's a bloody Windows Store app and that shit is buried somewhere and not worth the effort to have it blown away on the next update anyway.</p>
+<p>The ideal solution here would be for <code>WT.exe</code> to provide a way to select a profile to invoke, then setup a custom profile that's not the default and add the <code>%__CD__%</code> pathing there, which would provide the features needed for applications, while leaving the default profile intact.</p>
+<p>Overall profiles are great because they do make it easy to create new shell configurations quickly simply by copying profile entries and modifying a couple of obvious settings.</p>
+<h2 id="summary">Summary</h2>
+<p>The good news is that with the <code>StartingDirectory</code> value set in the default profile, it works and I can now use <code>wt.exe</code> as my terminal command in Markdown Monster:</p>
+<p><img src="MarkdownMonsterConfig.png" alt=""></p>
+<p>and it works just dandy now!</p>
+<p>The terminal has been a joy to use, which is why I'm mucking around with all this in the first place. I'm following up on the request I got earlier because  - heck -  I want to use the Windows Terminal in MM too 😃. And now I can&hellip;</p>
+<div style="margin-top: 30px;font-size: 0.8em;
+            border-top: 1px solid #eee;padding-top: 8px;">
+    <img src="favicon.png" style="height: 20px;float: left; margin-right: 10px;">
+    this post created and published with 
+    <a href="https://markdownmonster.west-wind.com" target="top">Markdown Monster</a> 
+</div>
+
+    <!-- End Markdown Monster Content -->
+</div>
+
+
+<script>
+xhighlightJsBadgeAutoLoad = false;
+</script>
+<script src="highlightjs-badge.js"></script>    
+<script>
+    // var opt = {
+        
+    // };
+    // highlightJsBadgeAutoLoad();
+</script>
+
+    
+</body> 
+</html>

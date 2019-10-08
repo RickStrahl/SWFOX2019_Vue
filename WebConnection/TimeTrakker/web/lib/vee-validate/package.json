@@ -1,0 +1,167 @@
+{
+  "_from": "vee-validate",
+  "_id": "vee-validate@2.1.0-beta.11",
+  "_inBundle": false,
+  "_integrity": "sha512-dnH2oQQ40+0g9L7H9oMrVxnP9unWEXLNAbFaeEumklnjOrjPv20lpykZqyGSyuK/pi3dhsKb2x1VixWsCITRvw==",
+  "_location": "/vee-validate",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "vee-validate",
+    "name": "vee-validate",
+    "escapedName": "vee-validate",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/vee-validate/-/vee-validate-2.1.0-beta.11.tgz",
+  "_shasum": "d1e7c9996a9aeff173a36b3308c2201faee23e30",
+  "_spec": "vee-validate",
+  "_where": "C:\\WebConnectionProjects\\TimeTrakker\\web",
+  "author": {
+    "name": "Abdelrahman Awad",
+    "email": "logaretm1@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/baianat/vee-validate/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {},
+  "deprecated": false,
+  "description": "Simple Vue.js input validation plugin",
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "@babel/node": "^7.0.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@commitlint/cli": "^7.1.2",
+    "@vue/test-utils": "1.0.0-beta.12",
+    "babel-core": "^7.0.0-0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.4.2",
+    "chalk": "^2.4.1",
+    "cross-env": "^5.2.0",
+    "date-fns": "2.0.0-alpha.7",
+    "eslint": "^5.6.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-flowtype": "^2.50.3",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.22.1",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "filesize": "^3.6.1",
+    "flow-bin": "^0.81.0",
+    "flush-promises": "^1.0.0",
+    "gzip-size": "^5.0.0",
+    "husky": "^1.0.1",
+    "jest": "^23.5.0",
+    "lint-staged": "^7.3.0",
+    "mkdirp": "^0.5.1",
+    "regenerator-runtime": "^0.12.1",
+    "rollup": "^0.66.2",
+    "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-commonjs": "^9.1.8",
+    "rollup-plugin-flow": "^1.1.1",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-replace": "^2.0.0",
+    "uglify-js": "^3.4.9",
+    "validator": "^10.7.1",
+    "vue": "^2.5.17",
+    "vue-i18n": "^8.1.0",
+    "vue-jest": "^2.6.0",
+    "vue-server-renderer": "^2.5.17",
+    "vue-template-compiler": "^2.5.17",
+    "vuepress": "^0.14.4"
+  },
+  "eslintIgnore": [
+    "locale",
+    "dist",
+    "flow"
+  ],
+  "files": [
+    "dist/*.js",
+    "dist/locale/*.js",
+    "types/*.d.ts"
+  ],
+  "homepage": "https://baianat.github.io/vee-validate/",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint --edit -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "jest": {
+    "testMatch": [
+      "**/tests/**/*.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/helpers/"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/index.*.js",
+      "!src/install.js",
+      "!src/use.js",
+      "!src/messages.js",
+      "!src/plugins/date/messages.js"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "vue"
+    ],
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest",
+      ".*\\.(vue)$": "<rootDir>/node_modules/vue-jest"
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
+  },
+  "keywords": [
+    "VueJS",
+    "Vue",
+    "validation",
+    "validator",
+    "inputs",
+    "form"
+  ],
+  "license": "MIT",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add",
+      "jest --maxWorkers=1 --bail --findRelatedTests"
+    ]
+  },
+  "main": "dist/vee-validate.js",
+  "module": "dist/vee-validate.esm.js",
+  "name": "vee-validate",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baianat/vee-validate.git"
+  },
+  "scripts": {
+    "build": "npm run build:umd && npm run build:esm && npm run build:locale",
+    "build:esm": "node scripts/esm.js",
+    "build:locale": "node scripts/locale.js",
+    "build:umd": "node scripts/umd.js",
+    "cover": "jest --coverage",
+    "docs:build": "vuepress build docs",
+    "docs:deploy": "./scripts/deploy.sh",
+    "docs:dev": "vuepress dev docs",
+    "flow": "flow",
+    "lint": "eslint src tests --fix",
+    "release": "./scripts/release.sh",
+    "test": "jest"
+  },
+  "typings": "types/index.d.ts",
+  "unpkg": "dist/vee-validate.js",
+  "version": "2.1.0-beta.11"
+}

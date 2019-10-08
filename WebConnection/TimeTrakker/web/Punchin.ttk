@@ -1,0 +1,121 @@
+<%
+	* VS Addin Comment: SourceFile="~\..\deploy\ttProcess.PRG"
+    pcPageTitle="Punch In - Time Trakker"
+%>
+<% Layout="~/views/_LayoutPage.wcs" %>
+
+<div class="container">
+    <div class="page-header-text">
+        <i class="fas arrow-alt-circle-down" style="color: orange"></i>
+        New Time Entry
+    </div>
+
+    <%= HtmlErrorDisplay(pcErrorMsg, pcErrorIcon,"",pcErrorHeader,.T.) %>
+
+    <form action="" method="POST" class="form-horizontal">
+        <div class="form-group">
+            <label for="title" class="control-label col-sm-2 hidable">Title:</label>
+            <div class="col-sm-10">
+
+                <input id="Title" name="Title" type="text"
+                       class="form-control" placeholder="Title for this time entry"
+                       value="<%= Request.FormOrValue('title',poEntry.Title) %>" />                
+                <%= HtmlBindingError("Title",poErrors) %>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2 hidable" for="customerpk">Company:</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <%= HtmlDropDown("CustomerPk",poEntry.CustomerPK,"TCustomers","Pk","Company",[class="form-control"],"--- Select a Company","0") %>
+                    <div class="input-group-append" onclick="window.location = 'customer.ttk?id=0';">
+                        <span class="input-group-text">
+                            <i class="fa fa-fw fa-plus-circle"></i>
+                        </span>
+
+                    </div>
+                </div>
+                <%= HtmlBindingError("CustomerPk",poErrors) %>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-2 hidable" for="projectpk">Project:</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <select id="ProjectPk" name="ProjectPk"
+                            class="form-control">
+                        <option value="0">-- Select a Project</option>
+                    </select>
+
+                    <!-- %= HtmlDropDown("ProjectPk",poEntry.ProjectPk,"TProjects","Pk","ProjName",[class="form-control"],"--- Select a Project","0") % -->
+                    <div class="input-group-append" onclick="window.location = 'customer.ttk?id=0';">
+                        <span class="input-group-text">
+                            <i class="fa fa-fw fa-plus-circle"></i>
+                        </span>
+                    </div>
+                </div>
+                <%= HtmlBindingError("ProjectPk",poErrors) %>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label for="timein" class="control-label col-sm-2 hidable">Time in:</label>
+            <div class="col-sm-10">
+                
+                <%= HtmlDateTextBox("TimeIn",poEntry.TimeIn,[]) %>                
+                <%= HtmlBindingError("TimeIn",poErrors) %>
+            </div>
+        </div>
+
+        
+
+        <div class="form-group">
+            <label class="control-label col-sm-2 hidable" for="Descript">Description:</label>
+            <div class="col-sm-10">
+                <%= HtmlTextArea("Descript",poEntry.Descript,
+                [class="form-control"
+                style="height: 100px;"
+                placeholder="Description of this entry"]) %>
+                <%= HtmlBindingError("Descript",poErrors) %>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <button type="submit" name="btnSubmit" class="btn btn-primary btn-lg">
+            <i class="fa fa-arrow-alt-circle-down text-success" ></i> 
+            Punch in
+        </button>
+    </form>
+</div>
+
+<!-- remove sections if you're not using them -->
+<% section="headers" %>
+<link href="~/lib/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+<% endsection %>
+
+<% section="scripts" %>
+
+<!-- add this to the end of doc scripts -->
+<script src="~/lib/moment/min/moment.min.js"></script>
+<script src="~/lib/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script>
+    $("#TimeIn").datetimepicker({
+        format: "MM/DD/YYYY hh:mm a"
+    });
+    $("#Title").focus();
+
+
+</script>
+
+<script src="~/scripts/ww.jquery.js"></script>
+<script src="~/scripts/Timetrakker.js"></script>
+<script>
+    $("#CustomerPk").change(getActiveProjectsForCustomer);
+    getActiveProjectsForCustomer();
+</script>
+<% endsection %>

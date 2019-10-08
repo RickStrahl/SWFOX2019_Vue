@@ -1,0 +1,193 @@
+<%
+    * SourceFile="~\..\Deploy\ttprocess.prg"
+    pcPageTitle="Punch Out - Time Trakker"
+%>
+<% Layout="~/views/_LayoutPage.wcs" %>
+
+<!-- remove sections if you're not using them -->
+<% section="headers" %>
+<link href="~/lib/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+<style>
+    #TimeContainer {
+        margin-left: 46px;
+    }
+
+    @media(max-width: 767px) {
+        #TimeIn, #TimeOut {
+            width: 225px;
+        }
+
+        #TimeContainer {
+            margin-left: 0;
+        }
+    }
+</style>
+<% endsection %>
+
+<div class="container">
+    <div class="page-header-text">
+        <i class="fas fa-arrow-alt-circle-up text-success"   ></i>
+        <%= iif(poEntry.PunchedOut,"Time Entry","Punch Out") %>
+    </div>
+
+    <%= HtmlErrorDisplay(poError) %>
+
+    <form action="" method="POST" novalidate>
+
+        <div class="row">
+            <div class="col-sm-7">
+                <div class="form-group">
+                    <label for="Title" class="control-label hidable">Title:</label>
+                    <div>
+                        <input id="Title" name="Title" type="text"
+                               class="form-control" placeholder="Title for this time entry"
+                               value="<%= Request.FormOrValue('title',poEntry.Title) %>" />
+
+                        <%= HtmlBindingError("Title",poError.Errors) %>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label hidable" for="customerpk">Company:</label>
+                    <div class="">
+                        <div class="input-group">
+                            <%= HtmlDropDown("CustomerPk",poEntry.CustomerPK,"TCustomers","Pk","Company",[class="form-control"],"--- Select a Company","0") %>
+                            <div class="input-group-append" onclick="window.location = 'customer.ttk?id=' + $('#CustomerPk').val()">
+                                <span class="input-group-text">
+                                    <i class="fa fa-fw fa-external-link"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <%= HtmlBindingError("CustomerPk",poError.Errors) %>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label hidable" for="projectpk">Project:</label>
+
+                    <div class="input-group">
+                        <!--<select id="ProjectPk" name="ProjectPk" class="form-control">
+                            <option value="0">--- Select a Project</option>
+                        </select>-->
+                        <%= HtmlDropDown("ProjectPk",poEntry.ProjectPk,"TProjects","Pk","ProjName",[class="form-control"],"--- Select a Project","0") %>
+                        <div class="input-group-append" onclick="window.location = 'projects.ttk'">
+                            <span class="input-group-text">
+                                <i class="fa fa-fw fa-plus-circle"></i>
+                            </span>
+                        </div>
+
+                    </div>
+                    <%= HtmlBindingError("ProjectPk",poError.Errors) %>
+
+                </div>
+            </div>
+
+            <div id="TimeContainer" class="col-sm-4 well">
+                <div class="form-group">
+                    <label for="timein" class="control-label hidable">Time in:</label>
+                    <div class="">
+                        <%= HtmlDateTextBox("TimeIn",poEntry.TimeIn,[]) %>
+                        <%= HtmlBindingError("TimeIn",poError.Errors) %>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label for="TimeOut" class="control-label  hidable">Time Out:</label>
+                    <div class="">
+                        <%= HtmlDateTextBox("TimeOut",poEntry.Timeout,[]) %>                        
+                        <%= HtmlBindingError("TimeOut",poError.Errors) %>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="float-right">
+                        <b class="red-highlight">
+                            &nbsp; &nbsp; <span id="TotalHours" style="font-size: 1.1em">
+                                <%= ToHoursAndMinutes(poEntry.TotalHours) %>&nbsp;&nbsp;&nbsp;
+                            </span> <i class="fa fa-times"></i> &nbsp;&nbsp;
+                        </b>
+
+                        Rate:
+                        <input type="number"
+                               step="any"
+                               id="Rate" name="Rate"
+                               class="form-control"
+                               placeholder="Billing rate" style="width: 100px;display: inline;"
+                               value="<%= Request.FormOrValue('Rate',poEntry.Rate) %>" />
+                        <%= HtmlBindingError("Rate",poError.Errors) %>
+                    </div>
+                    <div class="separator" style="clear:both"></div>
+                    <div class="float-right"><b>Item Total:</b> &nbsp;<span id="ItemTotal" class="red-highlight" style="font-size: 1.4em;"><%= TRANS(poEntry.ItemTotal,"$$,$$$.99") %></span></div>
+                    <div class="float-left">
+                        <div class="form-group">
+                            <%= HtmlCheckBox("PunchedOut"," Punched out",poEntry.PunchedOut,[readonly="readonly" disabled="disabled"]) %><br />
+                        </div>
+                        <div class="form-group">
+                            <%= HtmlCheckBox("Billed"," Billed",poEntry.Billed,[]) %>
+                        </div>
+                    </div>
+                    <div class="clearfix" style="margin:0;padding:0"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <%= HtmlTextArea("Descript",poEntry.Descript,[class="form-control" style="height: 140px;" placeholder="Description of this entry"]) %>
+            <%= HtmlBindingError("Descript",poError.Errors) %>
+        </div>
+
+        <!--<div class="separator"></div>-->
+        <button type="submit" name="btnDelete" class="btn btn-sm btn-danger float-right" onclick="return confirm('Are you sure you want to delete this entry?');">
+            <i class="fa fa-times"></i> 
+            Delete
+        </button>
+        <button type="submit" name="btnPunchOut" class="btn btn-primary btn-lg" title="Punch out this entry and save">
+            <i class="fas fa-arrow-alt-circle-up"></i>
+            Punch Out
+        </button>
+        <button type="submit" name="btnSave" class="btn btn-default btn-lg" title="Save and leave this entry open"><i class="fa fa-edit"></i> Save only</button>
+
+        <input type="hidden" id="Pk" name="Pk" value="<%= poEntry.Pk %>" />
+        <div style="margin-bottom: 30px;"></div>
+    </form> 
+</div>
+
+<% section="scripts" %>
+<!-- add this to the end of doc scripts -->
+<script src="~/lib/moment/min/moment.min.js"></script>
+
+<script src="~/lib/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js"></script>
+<script>
+    $("#TimeIn,#TimeOut").datetimepicker({
+        format: "MM/DD/YYYY hh:mm a",
+    });
+    $("#Descript").focus();
+</script>
+
+<script src="~/scripts/ww.jquery.min.js"></script>
+<script src="~/scripts/Timetrakker.js"></script>
+
+<script src="~/lib/toastr/build/toastr.min.js"></script>
+<link href="~/lib/toastr/build/toastr.min.css" rel="stylesheet" />
+<script>
+    toastr.options.closeButton = true;
+    toastr.options.positionClass = "toast-bottom-right";
+    toastr.options.timeOut = 10000;
+
+    $custPk = $("#CustomerPk");
+
+    // update project drop down for customer
+    $custPk.change(getActiveProjectsForCustomer);
+
+    // update totals after entry
+    $("#TimeIn_field,#TimeOut_field,#Rate").blur(updateEntryTotals);
+</script>
+<!--<-% if !Request.IsPostback() AND !poEntry.PunchedOut  %>
+<script>
+    $('#TimeOut').data("DateTimePicker").date(new Date());
+    updateEntryTotals();
+</script>
+<-% endif %>-->
+<% endsection %>

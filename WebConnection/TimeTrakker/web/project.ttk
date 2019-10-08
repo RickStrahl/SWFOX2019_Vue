@@ -1,0 +1,188 @@
+<% 	
+	* VS Addin Comment: SourceFile="~\..\deploy\ttProcess.PRG"
+	pcPageTitle = poProject.ProjName + " - Time Trakker" 	
+%>
+<% Layout="~/views/_layoutpage.wcs" %>
+
+<div class="container">
+    <%= HtmlErrorDisplay(poError) %>
+
+    <div class="page-header-text">
+        <i class="fa fa-list-alt"></i>
+        <%= poProject.ProjName %>
+    </div>
+
+
+    <form id="form1" action="" method="post">
+
+        <div class="form-group">
+            <label class="control-label" for="ProjName">Project Name:</label>
+            <input type="text" class="form-control"
+                   id="ProjName" name="ProjName"
+                   value="<%= Request.FormOrValue([ProjName],poProject.ProjName) %>"
+                   placeholder="Project Name:">
+            <%= HtmlBindingError("ProjName",poError.Errors) %>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label" for="customerpk">Company:</label>
+
+
+            <%= HtmlDropDown("CustomerPk",poProject.CustomerPK,
+            "TCustomers","Pk","Company",[class="form-control"],
+            "--- Select a Company","0") %>
+
+            <%= HtmlBindingError("CustomerPk",poError.Errors) %>
+
+        </div>
+
+        <div class="form-group">
+            <div class="responsive-container">
+                <div >
+                    <label>Entered:</label>
+                    <%= HtmlDateTextBox("Entered",poProject.Entered,[ class="form-control"],0) %>
+                    <%= HtmlBindingError("Entered",poError.Errors) %>
+                </div>
+                <div>
+                    <label>Started:</label>
+                    <%= HtmlDateTextBox("StartDate",poProject.StartDate,[ class="form-control"],0) %>
+                    <%= HtmlBindingError("EndDate",poError.Errors) %>
+                </div>
+                <div>
+                    <label>Completed:</label>
+                    <%= HtmlDateTextBox("EndDate",poProject.EndDate,[ class="form-control"],0) %>
+                    <%= HtmlBindingError("EndDate",poError.Errors) %>
+                </div>
+            </div>
+        </div>
+
+        <hr/>
+ 
+        <button class="btn btn-primary" accesskey="S" type="submit">
+            <i class="fa fa-check" style="color: lightgreen"></i> 
+            Save Project
+        </button>
+
+        <hr/>
+
+        <% if Reccount("TEntries")  > 0 %>
+        <h3>Recent Entries</h3>
+
+        <div id="EntryScrollContainer" class="list-group">
+            <% SELE TEntries
+            SCAN %>
+            <a class="list-group-item" href='punchout.ttk?id=<%= pk %>'>
+                <div class="row">
+                    <div class="col-sm-9">
+                        <i class="fa fa-2x fa-fw float-left fa-<%= EntryIcon() %>"></i>
+                        <b><%= TEntries.Title %></b>
+                        <br />
+                        <small><i><%= ProjName  %></i></small>
+                    </div>
+                    <div class="col-sm-3 small hours-display">
+                        <%= ShortDate(TimeIn,0) + ", " + ShortTime(TimeIn) %>
+                        <div class="total-hours"><%= ToHoursAndMinutes(TotalHours) %></div>
+                        <!--<a id="btnDeleteButton" href="javascript:{}" onclick='deleteEntry(24988,this)' class="hoverbutton"
+                       data-id="24988"><i class="fa fa-remove error"></i></a>
+                    <a id="btnToggleBillStatus" href="javascript:{}" class="hoverbutton notbilled" data-id="24988">&nbsp;&nbsp;&nbsp;&nbsp;</a>-->
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+
+            </a>
+            <% ENDSCAN %>
+        </div>
+        <% endif %>
+
+
+    </form>
+
+</div>       
+
+<!-- remove sections if you're not using them -->
+<% section="headers" %>
+<link href="~/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+<style>
+    #EntryContainer {
+    }
+
+    .entry-toolbar {
+        background: #5b5b5b; /* Old browsers */
+        color: white;
+        padding: 6px 5px;
+        border-radius: 5px 5px 0 0;
+    }
+
+    #EntryScrollContainer {
+        border: 1px solid silver;
+        overflow-y: auto;
+        height: 545px;
+        border-radius: 0;
+        margin: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .list-group-item {
+        padding-top: 5px;
+        padding-bottom: 0;
+    }
+
+    .hours-display {
+        text-align: right;
+    }
+
+    .total-hours {
+        color: steelblue;
+    }
+
+    @media(max-width: 767px) {
+        .hours-display {
+            margin-top: 5px;
+        }
+
+        .total-hours {
+            display: inline;
+        }
+
+        .billed, .notbilled, .billed:hover {
+            background-image: url(images/billed.png) !important;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+            .notbilled, .notbilled:hover {
+                background-image: url(images/notbilled.png) !important;
+                background-repeat: no-repeat;
+            }
+    }
+</style>
+<% endsection %>
+
+<% section="scripts" %>
+
+
+<script src="~/bower_components/moment/min/moment.min.js"></script>
+<script src="~/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script>
+    // Date controls - .not() to avoid native control mods
+    $("#Entered,#StartDate,#EndDate").not("[type=date]").datetimepicker({
+        format: "MM/DD/YYYY",
+        keyBinds: { "delete": null }   // leave delete key
+    });	
+</script>
+<% endsection %>
+
+<%
+FUNCTION EntryIcon()
+   IF (Billed)
+      return [money" style="color: green; padding-bottom: 20px;"]
+   ENDIF
+   IF (PunchedOut)
+      return [clock-o" style="color: steelblue; padding-bottom: 20px;"]
+   ENDIF
+
+   return [arrow-circle-o-down" style="color: orange;padding-bottom: 20px;"]
+ENDFUNC
+
+%>

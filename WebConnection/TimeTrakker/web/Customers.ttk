@@ -1,0 +1,51 @@
+<% pcPageTitle = "Customers - Time Trakker" %>
+<% Layout="~/views/_layoutpage.wcs" %>
+
+<div class="container">
+    <div class="page-header-text">
+        <i class="fa fa-list-alt"></i> 
+        Customers
+    </div>
+
+
+    <form action="" method="post" id="form1" name="form1">
+        
+        <div class="input-group margin-bottom">
+            
+            <span class="input-group-prepend">
+                <span class="input-group-text">
+                    <i class="fa fa-search"></i>
+                </span>
+            </span> 
+            
+            <input type="text" class="form-control"
+                    id="SearchFor" name="SearchFor"
+                    placeholder="Type a customer name"
+                       
+                    value="<%= Request.FormOrValue('SearchFor',pcSearchFor) %>"
+                    onchange="$('#form1').submit()">                
+        
+        </div>
+    </form>
+    
+    <%= pcCustomerGrid %>
+</div>            
+
+<!-- remove sections if you're not using them -->
+<% section="headers" %>
+<style>
+    .table > tbody > tr:hover {
+        background: linear-gradient(#d9d9d9, #f2f2f2 100%);
+    }
+</style>
+<% endsection %>
+
+<% section="scripts" %>
+<script>
+    $("table>tbody").on("click", "tr", function () {
+        var href = $(this).find("td:first-child>a")[0].href;
+        if (href)
+            window.location.href = href;
+    });
+</script>
+<% endsection %>

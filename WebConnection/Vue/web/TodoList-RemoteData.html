@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Vue Todo</title>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="" />
+
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="./touch-icon.png" />
+
+    <link rel="icon" href="./touch-icon.png" />
+    <meta name="msapplication-TileImage" content="./touch-icon.png" />
+
+    <link href="./lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />    
+    <link href="./lib/fontawesome/css/all.min.css" rel="stylesheet" />
+    
+    <link href="./css/application.css" rel="stylesheet" />
+    <link href="./lib/toastr/build//toastr.min.css" rel="stylesheet" />
+
+    
+    <script src="./lib/vue/dist/vue.js"></script>
+    <script src="./lib/vee-validate/dist/vee-validate.full.js"></script> 
+
+    <link href="./todo.css" rel="stylesheet" />
+</head>
+<body>
+<div id="todoApp" v-cloak>
+    <div class="banner">
+        <!-- Slideout Menu Toggle - Hamburger menu -->
+        <a class="slide-menu-toggle-open no-slide-menu"
+           title="More...">
+            <i class="fa fa-bars"></i>
+        </a>
+
+        <!-- Icon and Company Logo -->
+        <div class="title-bar no-slide-menu">
+            <a href="./">
+                <img class="title-bar-icon" src="./images/Icon.png" />
+                <div style="float: left; margin: 4px 5px; line-height: 1.0">
+                    <i style="color: #0092d0; font-size: 0.9em; font-weight: 600;">West Wind</i><br />
+                    <i style="color: whitesmoke; font-size: 1.65em; font-weight: 600;">ToDo List</i>
+                </div>
+            </a>
+        </div>
+
+        <!-- top right nav menu - .hidable for options that hide on small sizes -->
+        <nav class="banner-menu-top float-right">
+            <!-- <a href="#" class="hidable">
+                <i class="fa fa-book"></i>
+                Link
+            </a> -->
+            <a href="./">
+                <i class="fas fa-home"></i>
+                Home
+            </a>             
+        </nav>
+    </div>
+    
+    <div class="alert alert-info alert-warning"
+        v-show="errorMessage"
+         style="margin-top: 60px; border-radius: none" >
+        <i class="fa fa-warning"></i> 
+        {{errorMessage}}
+    </div>
+    
+    <div id="MainView"  style="min-height: 200px;">
+        
+        <div class="container" v-cloak>        
+
+
+            <h4 class="float-right" style="cursor: pointer; margin-left: 15px;" 
+                v-on:click="reloadData()">
+                <i class="fa fa-sync-alt text-dark" title="Reload records"></i> 
+                Reload
+            </h4>
+
+            <h4 class="float-right" style="cursor: pointer;" v-on:click="addTodo()">
+                <i class="fa fa-plus-circle  text-success" title="Add new Todo Item"></i> 
+                Add
+            </h4>
+            
+
+            <div class="page-header-text">
+                    <i class="fa fa-list-alt"></i>
+                    {{ appName }}                     
+                    <div class="badge badge-pill badge-secondary text-sm-left"
+                         style="font-size: 0.7rem; vertical-align: text-top; margin-top: 6px;">
+                         {{todos ? todos.length : ''}}
+                    </div>
+            </div>
+                                    
+            <p>
+                <div v-cloak>
+                    
+                    <div class="todo-item"
+                         :class="{completed: todo.completed}"
+                         v-for="todo in todos" >
+                                                  
+                         <!-- Completed Status Toggle Icon -->
+
+                         <!-- <input type="checkbox"  class="float-left" 
+                                v-model="todo.completed"  /> -->
+
+                         <i class="fa fa-fw float-left text-info" 
+                         style="margin: 10px 15px 30    px; font-size: 1.7em"
+                         v-on:click="toggleCompleted(todo)"
+                         :class="{'fa-bookmark': !todo.completed,                      
+                                     'fa-check': todo.completed,
+                                     'text-successs': todo.completed 
+                                    }"        
+                         ></i>
+                         
+                         <!-- action icons -->
+                         <div class="float-right">
+                                <i class="fa "  :class="{'fa-edit': !todo.isEditing, 
+                                     'fa-check': todo.isEditing, 
+                                     'text-success': todo.isEditing 
+                                }"
+                                @click="toggleEditMode(todo)"
+                                style="color: goldenrod; cursor: pointer"
+                                title="Edit Todo Item"
+                                v-show="!todo.isEditing || todo.title"
+                                ></i>
+
+                                <i class="fa fa-times-circle"
+                                    @click="removeTodo(todo)"
+                                    style="color: firebrick; cursor: pointer"
+                                    title="Remove Todo Item"></i>                                    
+                        </div>
+
+                        <!-- content -->
+                        <div class="todo-content" >
+                            <form >
+
+                            <div>
+                                <div v-if="!todo.isEditing" class="todo-header" >
+                                    {{todo.title}}
+                                </div>
+                                <div v-else>
+                                    <validation-provider  v-slot="{ errors, classes }" 
+                                        rules="required|min:4"
+                                        name="Title"
+                                        v-slot="{errors, classes}">
+
+                                        <input type="text"  
+                                                ref="todoTitle" 
+                                                v-model="todo.title"                                    
+                                                name="title" id="title" 
+                                                class="todo-header inline-editor" 
+                                                :class="classes" />
+                                        <div class="text-danger" 
+                                             style="margin-botton: 5px;">{{ errors[0]}}</div>
+                                    </validation-provider>
+                                </div>
+                            </div>                            
+                            <div v-if="!todo.isEditing" style="min-height: 25px;" >
+                                {{todo.description}}                                
+                            </div>
+                            <div v-else>
+                                    <textarea v-model="todo.description"                                        
+                                        name="description" id="description"
+                                        class="inline-editor"></textarea>                                        
+                            </div>
+
+                            
+                            </form>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                
+               
+            </p>
+
+        </div>  <!-- end .container -->
+    </div> <!-- end #MainView -->
+
+
+    <footer>
+        <a href="http://www.west-wind.com/" class="pull-right">
+            <img src="./images/WestwindText.png" />
+        </a>
+        <small>&copy; West Wind Technologies</small>
+    </footer>
+
+
+</div>    
+    <script src="./lib/jquery/dist/jquery.min.js"></script>
+    <script src="./lib/popper.js/dist/popper.min.js"></script>
+    <script src="./lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script>
+        // toggle menu, handle menu click and outside click to close
+        $(document).on("click",
+            ".slide-menu-toggle-open,.slide-menu-toggle-close," +
+            ".slide-menu a, #SamplesLink,.slide-menu",
+            function () {
+                $(".slide-menu").toggleClass("active");
+            });
+    </script>        
+
+    
+    <script src="./todoAppRemoteData.js" type="module"></script>    
+</body>
+</html>

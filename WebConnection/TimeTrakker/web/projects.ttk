@@ -1,0 +1,133 @@
+<%
+	* VS Addin Comment: SourceFile="~\..\deploy\timetrakkermain.prg"
+	pcPageTitle = "Projects - Time Trakker"
+%>
+<% Layout="~/views/_layoutpage.wcs" %>
+
+<%
+#IF .F.
+<link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+#ENDIF
+%>
+
+<% section="headers" %>
+<style>
+    .project-toolbar {
+        background: #5b5b5b; /* Old browsers */
+        color: white;
+        padding: 6px 5px;
+        border-radius: 5px 5px 0 0;
+    }
+    #ProjectScrollContainer {
+        overflow-y: auto;
+        border: 1px lightgrey solid;
+        border-top: none;
+        min-height: 100px;             
+    }
+    .project-title {
+        font-size: 1.2em;
+        font-weight: 600;
+    }
+    .project-icon {
+        padding-right: 5px;font-size: 1.25em;
+        color: steelblue; 
+    }
+    .project-open {
+        color: orange ;
+    }
+</style>
+<% endsection %>
+
+
+<div class="container">
+    <div class="page-header-text">
+        <i class="fa fa-list-alt"></i>
+        Projects
+    </div>
+
+    <div class="ProjectContainer">
+
+        <div class="project-toolbar grey-control-gradient">
+            <form id="form1" action="" method="POST" class="form-inline">
+                <div class="row">
+                    <div class="col-xs-1">
+                        <a href="project.ttk" class="btn btn-sm btn-success" title="New Project">
+                            <i class="fa fa-arrow-circle-o-down"></i> New
+                        </a>
+                    </div>
+
+                    <div class="col-xs-11" style="text-align:right;">
+                        <span class="hidable">Customer:</span>
+                        <select id="lstCustomer" name="lstCustomer"
+                                class="input-sm"
+                                style="display: inline;color: #434343"
+                                onchange="$('#form1').submit()">
+                            <option value="">All Customers</option>
+                            <option disabled>---------------</option>
+                            <%
+                            SELECT TCustomers
+                            SCAN
+                            %>
+                            <option value="<%= TCustomers.Pk %>"<%= iif(pnCustomerPk = TCustomers.Pk,"selected","") %> ><%= Company %></option>
+                            <%  ENDSCAN %>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="ProjectScrollContainer" class="list-group" style="margin-bottom: 0">
+            <% select TProjects 
+            SCAN %>
+              <a class="list-group-item" href="project.ttk?id=<%= TProjects.Pk %>" >
+                  <div class="row">
+                      <div class="col-sm-3 small float-right right">
+                          <%= ShortDate(TProjects.Entered,2) %>
+                      </div>
+                      <div class="col-sm-9 project-title">                          
+                          <i class="fa  <%= projectIcon() %>"></i>                          
+                          <%= TProjects.ProjName %>
+                      </div>
+                  </div>
+                  <div class="small" style="margin-left: 30px;">
+                       <%= TProjects.Company %>
+                  </div>
+              </a>
+
+            <% ENDSCAN %>
+        </div>
+
+        <div class="project-toolbar" style="border-radius: 0; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px"  >
+            <%= RecCount("TProjects") %> Projects
+        </div>
+
+
+    </div>
+</div>
+
+
+
+<% section="scripts" %>
+<script>
+    $(window).resize(resizeList);
+    resizeList();
+    function resizeList() {
+        var fromBottom = 297;
+        if ($(window).width() < 768)
+            fromBottom = 180;
+        $(".list-group").height($(window).height() - fromBottom);
+    }    
+</script>
+<% endsection %>
+
+<%
+   function projectIcon()
+      LOCAL lcIcon
+      lcIcon = "fa-inbox project-icon"
+      if (TProjects.status = 0)
+        lcIcon = "fa-arrow-circle-o-down project-icon project-open"
+      endif
+      return lcIcon          
+   endfunc
+%>

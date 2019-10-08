@@ -1,0 +1,297 @@
+<%
+    * SourceFile="~\..\Deploy\ttprocess.prg"
+    pcPageTitle = poCustomer.Company + " - Time Trakker"
+%>
+<% Layout="~/views/_layoutpage.wcs" %>
+
+<div class="container" id="CustomerPage">
+    <div class="page-header-text">
+        <i class="fa fa-user"></i>
+        Customer
+    </div>
+
+    <%= HtmlErrorDisplay(poError) %>
+
+    <form action="" method="POST"
+          class=" container"
+          style="padding: 0 15px 30px;">
+
+        <div class="form-group row ">
+            <label class="col-md-2">Company:</label>
+            <div class="col-md-10">
+                <input name="Company" id="Company" value="<%= Request.FormOrValue('Company',poCustomer.Company) %>"
+                       class="form-control"
+                       placeholder="Enter a company name" />
+                <%= HtmlBindingError("Company",poError.Errors) %>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-2">First Name:</label>
+            <div class="col-md-10">
+                <input name="FirstName" id="FirstName"
+                       value="<%= Request.FormOrValue('FirstName', poCustomer.FirstName) %>"
+                       class="form-control"
+                       placeholder="Enter the first name" />
+                <%= HtmlBindingError("FirstName",poError.Errors) %>
+                <%= HtmlBindingError("LastName",poError.Errors) %>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-2">Last Name:</label>
+            <div class="col-md-10">
+                <input name="LastName" id="LastName"
+                       value="<%= Request.FormOrValue('LastName',poCustomer.LastName) %>"
+                       class="form-control"
+                       placeholder="Enter the last name" />
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-2">Address:</label>
+            <div class="col-md-10">
+                <textarea name="Address"
+                          class="form-control"
+                          placeholder="Enter the full address">
+                    <%= Request.FormOrValue('Address',poCustomer.Address) %>
+                </textarea>
+                <%= HtmlBindingError("Address",poError.Errors) %>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-2">Email:</label>
+            <div class="col-md-10">
+                <input name="Email"
+                       value="<%= Request.FormOrValue('Email',poCustomer.Email) %>"
+                       class="form-control"
+                       placeholder="Enter the email address" />
+                <%= HtmlBindingError("Email",poError.Errors) %>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-md-2">Rate:</label>
+            <div class="col-md-10">
+                <input name="BillRate" value="<%= Request.FormOrValue('BillRate',poCustomer.BillRate) %>"
+                       class="form-control"
+                       placeholder="Enter the billing rate in dollars" />
+                <%= HtmlBindingError("BillRate",poError.Errors) %>
+            </div>
+        </div>
+
+
+        <div class="form-group row">
+            <label for="Entered" class="col-md-2">Entered:</label>
+            <div class="col-md-5">
+                <%= HtmlDateTextBox("Entered",poCustomer.Entered,[]) %>
+                <%= HtmlBindingError("Entered",poError.Errors) %>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="Entered" class="col-md-2">Last Entry:</label>
+            <div class="col-md-5">
+                <%= HtmlDateTextBox("LastOrder",poCustomer.LastOrder,[]) %>
+                <%= HtmlBindingError("LastOrder",poError.Errors) %>
+            </div>
+        </div>
+
+        <hr />
+
+        <button type="submit" name="btnSubmit" class="btn btn-primary">
+            <i class="fa fa-check"></i> Save Customer
+        </button>
+        <input type="hidden" id="Id" name="Id" value="<%= poCustomer.pk %>" />
+
+    </form>
+
+    <hr />
+
+    <div>
+        <div class="list" v-bind:class="{'hidden': !ready }">
+            <div class="list-header">
+                <button type="button" id="btnAdd"
+                        class="btn btn-success float-right" style="margin-top: -7px"
+                        v-on:click="addRowVisible = !addRowVisible">
+                    <i class="fa fa-plus-circle"></i>
+                    Add
+                </button>
+                Recent Projects
+            </div>
+            <div class="list-item" v-bind:class="{'hidden': !addRowVisible }">
+                <div class="responsive-container">
+
+                    <input type="text" class="form-control" placeholder="New project name"
+                           v-model="newProject.projname"
+                           v-validate="'required|min:3'"
+                           name="ProjectName" id="ProjectName" />
+                    <div style="width: 250px;">
+                        <%= HtmlDateTextBox("StartDate","",[ placeholder="starts on" v-model="newProject.startdate"]) %>
+
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            @click="saveProject()"
+                            v-bind:disabled="errors.any() || !newProject.projname">
+                        <i class="fa fa-check"></i>
+                        Save
+                    </button>
+                </div>
+
+                <div class="text-danger" style="margin-top: 6px;" v-show="errors.any()">
+                    {{errors.first('ProjectName')}}
+                    {{errors.first('StartDate')}}
+                </div>
+                <!--{{errors}} {{errors.any()}}-->
+            </div>
+
+            <div v-for="project in projects"
+                 class="list-item">
+                <a v-on:click="removeProject(project)"
+                   class="float-right btn">
+                    <i class="fas fa-times-circle text-danger"></i>
+                </a>
+                <div class="list-item-header ">
+                    <i class="float-left fa-2x fa-fw far project-icon "
+                       v-bind:class="{
+                        'fa-clipboard-check': project.status == 1,'text-success': project.status == 1,
+                        'fa-arrow-alt-circle-down': project.status ==0, 'text-warning': project.status ==0   }"></i>
+                    <a v-bind:href="'project.ttk?id=' + project.pk">{{project.projname}}</a>
+                </div>
+                <div class="small font-italic">
+                    {{project.entered}}
+                </div>
+                <!--<div><pre>
+                {{project}}
+                        </pre></div>-->
+            </div>
+        </div>
+
+    </div>
+
+    <div class="list" id="RecentItemsContainer">
+        <div class="list-header">Recent Entries</div>
+
+        <% select TEntries
+        go top
+        SCAN %>
+        <div class="list-item">
+            <a href="puchout.ttk?id=<%= TEntries.Pk %>">
+                <div class="small float-right font-italic">
+                    <%= ShortDate(TEntries.TimeIn,2) %>
+                </div>
+                <div class="list-item-header">
+                    <i class="float-left fa fa-2x fa-fw  <%= projectIcon() %>"></i>
+                    <%= TEntries.Title %>
+                </div>
+                <div class="small"><%= TEntries.ProjName %></div>
+                <div class="small">
+
+                </div>
+            </a>
+        </div>
+        <% ENDSCAN %>
+    </div>
+
+
+</div>
+
+<% section="headersStart" %>
+<style>
+    [v-cloak] {
+        display: none
+    }
+</style>
+<% endsection %>
+
+
+<!-- remove sections if you're not using them -->
+<% section="headers" %>
+<link href="~/lib/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+<style>
+    .project-toolbar {
+        background: #5b5b5b; /* Old browsers */
+        color: white;
+        padding: 6px 5px;
+        border-radius: 5px 5px 0 0;
+    }
+
+    #ProjectScrollContainer {
+        overflow-y: auto;
+        border: 1px lightgrey solid;
+        border-top: none;
+        min-height: 100px;
+    }
+
+    .project-title {
+        font-size: 1.2em;
+        font-weight: 600;
+    }
+
+    .project-icon {
+        margin-right: 15px;
+        font-size: 1.25em;
+        color: steelblue;
+    }
+
+    .project-open {
+        color: orange;
+    }
+</style>
+<% endsection %>
+
+<% section="scripts" %>
+<!-- add this to the end of doc scripts -->
+<script src="~/lib/moment/min/moment.min.js"></script>
+<script src="~/lib/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js"></script>
+<script src="~/scripts/ww.jquery.js"></script>
+<script src="~/lib/vue/dist/vue.min.js"></script>
+<script src="~/lib/vee-validate/dist/vee-validate.min.js"></script>
+<script src="customer.js"></script>
+
+<script src="~/lib/toastr/build/toastr.min.js"></script>
+<link href="~/lib/toastr/build/toastr.min.css" rel="stylesheet" />
+
+<script>
+    toastr.options.closeButton = true;
+    toastr.options.positionClass = "toast-bottom-right";
+    toastr.options.timeOut = 6000;
+
+
+    $.extend(true, $.fn.datetimepicker.Constructor.Default, {
+        icons: {
+            time: 'far fa-clock'
+        }
+    });
+    $("#LastOrder,#Entered,#StartDate").datetimepicker({
+        format: "MM/DD/YYYY"
+    });
+</script>
+<% endsection %>
+
+<%
+   function projectIcon()
+      LOCAL lcIcon
+      lcIcon = "fa-inbox project-icon"
+      if (TProjects.status = 0)
+        lcIcon = "fa-arrow-alt-circle-down project-icon project-open"
+      endif
+      return lcIcon
+   endfunc
+
+FUNCTION EntryIcon()
+   lcBaseStyle = [font-size: 1.8em;margin-right: 10px !important;"]
+   IF (Billed)
+      return [file-invoice-dollar far" style="color: green; padding-bottom: 20px; font-size: 1.3em;] + lcBaseStyle
+   ENDIF
+   IF (PunchedOut)
+      return [user-clock far" style="color: darkgoldenrod; padding-bottom: 20px;] + lcBaseStyle
+   ENDIF
+
+   *** Open
+   return [arrow-alt-circle-down far" style="color: orange;padding-bottom: 20px;] + lcBaseStyle
+ENDFUNC
+%>

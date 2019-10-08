@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>Vue 100</title>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="" />
+
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="./touch-icon.png" />
+
+    <link rel="icon" href="./touch-icon.png" />
+    <meta name="msapplication-TileImage" content="./touch-icon.png" />
+
+    <link href="./lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./lib/fontawesome/css/all.min.css" rel="stylesheet" />
+    <link href="todo.css" rel="stylesheet" />
+
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+    <script src="./lib/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="todoApp" class="container">
+        <h1 v-bind:title="appName + ' ' + time.toLocaleTimeString()">{{appName}}</h1>
+        <hr>
+        <p>Current time is: <b>{{time.toLocaleTimeString()}}</b></p>
+        <b  v-text="time.toLocaleTimeString()"></b>
+        
+
+        <div class="alert alert-warning" v-if="errorMessage">
+            <i class="fas fa-exclamation-triangle" style="color: firebrick"></i>                
+            {{errorMessage}}
+        </div>
+
+        <p>
+            <label for="">Update the App Name: </label>
+
+            <input type="text" 
+                    class="form-control"
+                    v-model="appName"
+                    />
+            <button class="btn btn-primary mt-2" 
+                    v-on:click="resetAppName()">
+                <i class="fas fa-recycle" style="color: lightgreen"></i> 
+                Reset to Default                
+            </button>
+        </p>
+
+        <button class="btn btn-primary " v-on:click="setError()">
+            <i class="fas fa-exclamation-triangle"></i>
+            Toggle Error
+        </button>
+    </div>
+
+<script>
+    var defaultAppName = "Vue Todo List";
+
+    // create the view model separately - more options this way
+    var vm = {
+        appName: defaultAppName,
+        time: new Date(),
+        
+        initialize: function() {
+            setInterval(function() { vm.time = new Date() },1000);            
+        },
+        resetAppName: function() { 
+            if (vm.appName != defaultAppName)
+                vm.appName = defaultAppName;
+            else
+                vm.appName = defaultAppName + " RESET";   
+        },
+        errorMessage: "",
+        setError: function() {
+            if (!vm.errorMessage)
+                vm.errorMessage = "An error occurred on " + new Date().toLocaleTimeString();
+            else
+                vm.errorMessage = "";
+        }     
+     }
+     
+    
+    // initialize the model
+    var app = new Vue({
+        el: '#todoApp',
+        data: function() {
+            vm.initialize();
+            return vm;  // bind the model to the view
+        }
+    });
+</script>
+
+<style>
+label { font-weight: bold; }
+</style>
+
+</body>
+
+</html>

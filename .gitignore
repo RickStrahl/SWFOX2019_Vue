@@ -1,0 +1,27 @@
+# Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
+bin/
+obj/
+.vs
+Release
+Debug
+*.sdf
+*.pdb
+*.tlb
+*.vbr
+*.fxp
+*.FXP
+*.opensdf
+*.bak
+storage.ide
+*.ide-*
+*.cache
+~*.*
+
+
+# mstest test results
+TestResults
+
+*.user
+*.suo
+ClrHost/ClrHost.aps
+

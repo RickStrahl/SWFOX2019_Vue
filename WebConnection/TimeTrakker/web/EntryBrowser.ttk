@@ -1,0 +1,100 @@
+<%
+    * SourceFile="~\..\Deploy\ttprocess.prg"
+    pcPageTitle="Time Trakker Entries"
+%>
+<% Layout="~/views/_LayoutPage.wcs" %>
+
+<!-- remove sections if you're not using them -->
+<% section="headers" %>
+
+
+<style>
+    #EntryContainer {
+    }
+    .entry-toolbar {
+        background: #5b5b5b; /* Old browsers */
+        color: white;
+        padding: 6px;
+        border-radius: 5px 5px 0 0;
+        vertical-align: middle;
+    }
+</style>
+<% endsection %>
+
+<div class="container">
+    <div class="page-header-text">
+        <i class="far fa-user-clock text-success"></i>
+        Time Entries
+    </div>
+
+    <form id="form1" action="" method="POST">
+        <div id="EntryContainer">
+
+            <div class="entry-toolbar grey-control-gradient">
+
+
+                <div class="responsive-container">
+                    <div style="width: 300px">
+                        <a href="punchin.ttk" class="btn btn btn-success" title="Punch In">
+                            <i class="fa fa-plus-circle"></i>
+                            New
+                        </a>
+                    </div>
+
+                    <div style="width: 100%">          
+                        <div class="responsive-container" >
+                            <label style="display: block; margin-top: 5px;" class="hidable margin-sides">Customer:&nbsp;</label>
+                            <select id="lstCustomer" name="lstCustomer"
+                                    class=" form-control"
+                                    style="color: #434343;"
+                                    onchange="$('#form1').submit()">
+                                <option value="">All Customers</option>
+                                <option disabled>---------------</option>
+                                <%
+                                SELECT TCustomers
+                                SCAN
+                                %>
+                                <option value="<%= TCustomers.Pk %>" <%= iif(pnCustomerPk = TCustomers.Pk,"selected","") %> ><%= Company %></option>
+                                <%  ENDSCAN
+                                SELECT TEntries
+                                %>
+                            </select>
+
+                            <select id="View" name="View" class="form-control"
+                                    style="width: 250px"
+                                    onchange="$('#form1').submit()">
+                                <option value="Recent" <%= IIF(pcView="Recent","selected","") %> >Recent Entries</option>
+                                <option value="Open" <%= IIF(pcView="Open","selected","") %> >Open Entries</option>
+                                <option value="All" <%= IIF(pcView="All","selected","") %> >All Entries</option>
+                            </select>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <%= RenderPartial("~/partials/EntryList_partial.wcs") %>
+
+            <div class="entry-toolbar small" style="border-radius: 0; padding-right: 10px">
+                <div class="float-right"><%= TRANS(pnTotalHours,"999,999.99") %> hours</div>
+                <%= pnEntryCount %> Entries
+            </div>
+        </div>
+    </form>
+</div>
+
+<% section="scripts" %>
+<script>
+    $(window).resize(resizeList);
+    resizeList();
+    function resizeList() {
+        var fromBottom = 297;
+        if ($(window).width() < 768)
+            fromBottom = 335;
+        $(".list-group").height($(window).height() - fromBottom);
+    }
+</script>
+<% endsection %>
+
+
+

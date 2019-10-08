@@ -1,0 +1,60 @@
+<%
+    * SourceFile="~\..\Deploy\ttprocess.prg"
+    pcPageTitle="Time Trakker Entries" 
+%>
+<% Layout="~/views/_layoutpage.wcs" %>
+
+<% LOCAL loEntries
+   PRIVATE pnOpenEntries
+   loEntries = Process.CreateBusObject("ttEntry")
+   pnOpenEntries = loEntries.GetOpenEntryCount(Process.nAuthenticatedUserPk)
+%>
+
+<div class="container">
+    <div class="page-header-text">
+        <i class="fa fa-home"></i>
+        Welcome to TimeTrakker
+    </div>
+
+	
+    <div class="list-group margin-top-2x">
+		
+        <a href="punchin.ttk" class="list-group-item">            
+            <i class="fa fa-arrow-alt-circle-up"></i> Punch In
+        </a>
+
+		<a href="punchout.ttk" class="list-group-item">           
+            <i class="fa fa-arrow-alt-circle-up"></i> Punch Out 
+            <% if pnOpenEntries > 0  %>
+            <span class="badge badge-light badge-pill"><%= pnOpenEntries %></span>
+            <% endif %>
+        </a>
+
+        <a href="Entrybrowser.ttk" class="list-group-item">
+            <i class="fa fa-angle-right  float-right"></i>
+            <i class="fa fa-list-alt"></i> Entry List
+        </a>
+
+		<a class="nav-divider"></a>
+
+		<a href="TimeReport.ttk" class="list-group-item">    
+			<i class="fa fa-angle-right  float-right"></i>        
+            <i class="fa fa-print"></i> Reports
+        </a>
+
+		<a href="Customers.ttk" class="list-group-item">            
+            <i class="fa fa-angle-right  float-right"></i>
+			<i class="fa fa-user"></i> Customers
+        </a>
+
+        <a href="Projects.ttk" class="list-group-item">
+            <i class="fa fa-angle-right  float-right"></i>
+            <i class="fa fa-folder-open"></i> Projects
+        </a>
+
+        <a href="admin/admin.aspx" class="list-group-item">
+            <i class="fa fa-angle-right  float-right"></i>
+            <i class="fa fa-gear"></i> Web Connection Administration
+        </a>
+    </div>
+</div>            

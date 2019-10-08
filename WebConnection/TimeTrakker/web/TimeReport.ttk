@@ -1,0 +1,96 @@
+<% pcPageTitle="Time Trakker Entries" %>
+<% Layout="~/views/_layoutPage.wcs" %>
+
+<div class="container">
+    <div class="page-header-text">
+        <i class="fal fa-print"></i>
+        Time Reports
+    </div>
+
+    <%= HtmlErrorDisplay(poError) %>
+
+    <form id="form1" action="" method="post">        
+
+        <div class="row">
+            <div class="col-md-5">
+                <label>Customers</label>
+                <%= HtmlListbox("Customerpk",poReportParms.CustomerPKs,"TCustomers","Pk","Company",[multiple class="form-control" style="height: 450px;margin-bottom: 20px;"]) %>
+            </div>
+            <div class="col-md-7">
+                <h4><i class="fa fa-filter"></i> Filters</h4>
+                <div class="separator"></div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="DateStart">From:</label>
+                            <%= HtmlDateTextBox("DateStart",poReportParms.DateStart,[]) %>
+                            <%= HtmlBindingError("DateStart",poError.Errors) %>
+
+                            <%= HtmlBindingError("DateStart",poError.Errors) %>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="DateStart">To:</label>
+                            <%= HtmlDateTextBox("DateEnd",poReportParms.DateEnd,[]) %>
+                            <%= HtmlBindingError("DateEnd",poError.Errors) %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Billing Type:</label>
+                    <!-- one way to bind back postback values using a dynamic list -->
+                    <%
+                    PRIVATE loTypes
+                    loTypes = CREATEOBJECT("Collection")
+                    loTypes.Add("Unbilled")
+                    loTypes.Add("Billed")
+                    loTypes.Add("All")
+                    %>
+                    <%= HtmlDropDown("BillStatus",poReportParms.BillStatus,"loTypes","","",[class="form-control"]) %>
+                </div>
+
+                <div class="form-group">
+                    <label>Output to:</label>
+                    <!-- demonstrate another way to reassign postback values to a list using HTML with markup -->
+                    <select id="OutputType" name="OutputType" size="1" class="form-control">
+                        <option value="Html" <%= Request.FormSelected("OutputType","Html", poReportParms.OutputType) %>>Html</option>
+                        <option value="PDF" <%= Request.FormSelected("OutputType","PDF", poReportParms.OutputType) %>>PDF</option>
+                        <option value="XML" <%= Request.FormSelected("OutputType","XML", poReportParms.OutputType) %>>XML</option>
+                        <option value="JSON" <%=Request.FormSelected("OutputType","JSON", poReportParms.OutputType) %>>JSON</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <hr />
+        <div class="margin-top ">
+            <button type="submit" id="btnSubmit" name="btnSubmit" class="btn btn-primary btn-lg">
+                <i class="fal fa-print"></i>
+                Run Report
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+<% section="headers" %>
+<link href="~/lib/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+<% endsection %>
+
+<% section="scripts" %>
+<!-- add this to the end of doc scripts -->
+<script src="~/lib/moment/min/moment.min.js"></script>
+<script src="~/lib/tempusdominus-bootstrap-4/build/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script>
+    $("#DateStart,#DateEnd").datetimepicker({
+        format: "MM/DD/YYYY"   
+    });
+</script>
+
+<% endsection %>

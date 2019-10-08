@@ -1,0 +1,75 @@
+﻿<style>
+    .entry-scroll-container {
+        border: 1px solid silver;
+        overflow-y: auto;
+        height: 400px;
+        border-radius: 0;
+        margin: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .list-group-item {
+        padding-top: 5px;
+        padding-bottom: 0;
+    }
+
+    .hours-display {
+        text-align: right;
+    }
+
+    .total-hours {
+        color: steelblue;
+    }
+
+    @media(max-width: 767px) {
+        .hours-display {
+            margin-top: 5px;
+        }
+
+        .total-hours {
+            display: inline;
+        }
+    }
+</style>
+<div class="entry-scroll-container list-group">
+    <% SELE TEntries
+
+    SCAN %>
+    <a class="list-group-item" href='punchout.ttk?id=<%= pk %>'>        
+        <div class="row">
+            <div class="col-sm-9">
+                <i class="fa-fw float-left fa-<%= EntryIcon() %>"></i>
+                <b><%= TEntries.Title %></b>
+                <br />
+                <small><i><%= ProjName  %></i></small>
+            </div>
+            <div class="col-sm-3 small hours-display">
+                <%= ShortDate(TimeIn,0) + ", " + ShortTime(TimeIn) %>
+                <div class="total-hours font-weight-bold"><%= ToHoursAndMinutes(TotalHours) %></div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+    </a>
+    <% ENDSCAN %>
+</div>
+
+
+<%
+FUNCTION EntryIcon()
+   LOCAL lcBaseStyle
+   lcBaseStyle = [font-size: 1.8em;margin-right: 10px !important;]
+   IF (Billed)
+      return [file-invoice-dollar far" style="color: green; padding-bottom: 20px; font-size: 1.3em;] + lcBaseStyle
+   ENDIF
+   IF (PunchedOut)
+      return [user-clock far" style="color: darkgoldenrod; padding-bottom: 20px;] + lcBaseStyle
+   ENDIF
+
+   *** Open
+   return [arrow-alt-circle-down far" style="color: orange;padding-bottom: 20px;] + lcBaseStyle
+ENDFUNC
+
+%>
+

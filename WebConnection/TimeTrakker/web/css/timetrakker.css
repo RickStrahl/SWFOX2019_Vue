@@ -1,0 +1,36 @@
+﻿h1,h2,h3,h4,h5,h6 {
+    font-family: Trebuchet, 'Trebuchet MS', 'Lucidia Sans', Helvetica, Arial, Verdana, sans-serif;
+    color: steelblue;
+}
+
+input:not([type=submit]):not([type=file]):not([type=button]):not([type=radio]):not([type=checkbox]), select, textarea {
+    font-size: 1.06em !important;
+    font-weight: 600 !important;
+    /*font-family: "Segoe UI", 'Lucidia Sans', Helvetica, Arial, Verdana, sans-serif;*/
+} input[type=number]{
+    text-align: right;
+}
+
+input[type=radio].with-font ~ label:before, input[type=checkbox].with-font ~ label:before { font-family: "FontAwesome 5 Pro"; } .grey-gradient {
+    background: #eee;
+    background: -webkit-linear-gradient(top, rgb(241, 241, 241) 0%,#e9e9e9 100%); /* Chrome10+,Safari5.1+ */
+    background: linear-gradient(to bottom, rgb(241, 241, 241) 0%, #e9e9e9 100%); /* W3C */
+}
+
+/*input[type=radio].with-font ~ label:before,
+input[type=checkbox].with-font ~ label:before { font-family: 'Font Awesome 5 Pro'; }*/
+
+th.sortable>a,th.sortable>a:visited {
+    color: khaki;
+}
+
+
+@media(max-width: 767px) {
+    footer {
+       display: none !important;
+    }
+    input[type=text], input[type=password], input[type=date], input[type=email], input[type=file], input[type=search], select, textarea {
+        font-size: 1.0em !important;
+    }
+
+}

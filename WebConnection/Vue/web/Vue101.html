@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Vue 101</title>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="" />
+
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="./touch-icon.png" />
+
+    <link rel="icon" href="./touch-icon.png" />
+    <meta name="msapplication-TileImage" content="./touch-icon.png" />
+
+    <link href="./lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />    
+    <link href="./lib/fontawesome/css/all.min.css" rel="stylesheet" />
+    <link href="./css/application.css" rel="stylesheet" />
+
+    
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->    
+    <script src="./lib/vue/dist/vue.js"></script>
+    <script src="./lib/vee-validate/dist/vee-validate.full.js"></script> 
+
+
+</head>
+<body>
+<div id="app101">
+    <div class="banner">
+        <!-- Slideout Menu Toggle - Hamburger menu -->
+        <a class="slide-menu-toggle-open no-slide-menu"
+           title="More...">
+            <i class="fa fa-bars"></i>
+        </a>
+
+        <!-- Icon and Company Logo -->
+        <div class="title-bar no-slide-menu">
+            <a href="./">
+                <img class="title-bar-icon" src="./images/Icon.png" />
+                <div style="float: left; margin: 4px 5px; line-height: 1.0">
+                    <i style="color: #0092d0; font-size: 0.9em; font-weight: 600;">West Wind</i><br />
+                    <i style="color: whitesmoke; font-size: 1.65em; font-weight: 600;">ToDo List</i>
+                </div>
+            </a>
+        </div>
+
+        <!-- top right nav menu - .hidable for options that hide on small sizes -->
+        <nav class="banner-menu-top float-right">
+            <!-- <a href="#" class="hidable">
+                <i class="fa fa-book"></i>
+                Link
+            </a> -->
+            <a href="./">
+                <i class="fas fa-home"></i>
+                Home
+            </a>             
+        </nav>
+    </div>
+
+
+    <div id="MainView"  style="min-height: 200px;">
+        <div class="container" v-cloak>        
+
+            <h4 class="float-right" style="cursor: pointer;" v-on:click="addTodo()">
+                <i class="fa fa-plus-circle  text-success" title="Add new Todo Item"></i> 
+                Add
+            </h4>
+
+            <div class="page-header-text">
+                <i class="fa fa-list-alt"></i> {{ appName }}
+            </div>
+
+            
+
+            <div>Hello, <b>{{name}}</b>. </div>
+            <hr />
+            <p>Time is: <b>{{ time | formatDateTime() }}</b></p>
+            <p>{{sayHello(name)}}</p>
+            
+            
+                <div class="form-group">
+                    <label for="firstname">What's your name:</label>
+
+                    <!-- <input type="text" name="firstname" id="firstname"
+                            class="form-control"
+                            v-model="name"                             
+                            placeholder="Enter a name" /> -->
+
+                    <Validation-Provider  v-slot="{ errors, classes }" 
+                                          rules="required|min:4"
+                                          name="First Name">                                          
+                        <input type="text" 
+                                class="form-control"                                
+                                v-model="name" :class="classes"
+                                placeholder="Enter a name" />
+                                <p class="text-danger">{{ errors[0] }}</p>
+                    </Validation-Provider>  
+
+                
+                    
+                </div>
+
+                <button class="btn btn-primary"  type="button"      
+                        :disabled="!name"                  
+                        @click="clickHello(form1)">Submit</button>
+            </form>
+
+
+        </div>  <!-- end .container -->
+    </div> <!-- end #MainView -->
+
+
+    <footer>
+        <a href="http://www.west-wind.com/" class="pull-right">
+            <img src="./images/WestwindText.png" />
+        </a>
+        <small>&copy; West Wind Technologies</small>
+    </footer>
+
+
+</div>    
+    <script src="./lib/jquery/dist/jquery.min.js"></script>
+    <script src="./lib/popper.js/dist/popper.min.js"></script>
+    <script src="./lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script>
+        // toggle menu, handle menu click and outside click to close
+        $(document).on("click",
+            ".slide-menu-toggle-open,.slide-menu-toggle-close," +
+            ".slide-menu a, #SamplesLink,.slide-menu",
+            function () {
+                $(".slide-menu").toggleClass("active");
+            });
+    </script>        
+
+
+    <script src="./lib/jquery/dist/jquery.min.js"></script>
+    <script src="./scripts/ww.jquery.js"></script>
+
+
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.full.js"></script>
+    <script>
+        
+
+        // Add a rule.
+        VeeValidate.extend('secret', {
+            validate: value => value === 'example',
+            message: 'This is not the magic word'
+        });
+
+        // Register the component globally.
+        Vue.component('ValidationProvider', VeeValidate.ValidationProvider);
+    </script> -->
+    <script src="./vue101.js" type="module"></script>
+
+</body>
+</html>
