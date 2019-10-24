@@ -1,16 +1,8 @@
-//import Vue from './lib/vue/dist/vue.esm.browser.js';
-//import { ValidationProvider, extend } from './lib/vee-validate/dist/vee-validate.full.esm.js';
-
-// // Add a rule.
-// VeeValidate.extend('secret', {
-//     validate: value => value === 'example',
-//     message: 'This is not the magic word'
-//     });
 
 // custom validator
-VeeValidate.extend('xrequired', {
+VeeValidate.extend('required', {
     validate: (value) => value,
-    message: 'BOGUS MESSAGE: This field is required', // the error message
+    message: 'OVERRIDDEN MESSAGE: This field is required', // the error message
     computesRequired: true
   });
 Vue.component('ValidationProvider', VeeValidate.ValidationProvider);
@@ -80,7 +72,3 @@ var app = new Vue({
         }
     }
 });
-
-
-
-debugger;

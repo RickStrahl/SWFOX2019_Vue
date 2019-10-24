@@ -16,6 +16,9 @@ select:not(.ng-pristine).ng-invalid, textarea:not(.ng-pristine):not(.ng-untouche
     border-bottom: 1px solid #eee;
     transition: opacity 900ms ease-out;
 }
+.todo-item input[type=checkbox] {
+    margin-right: 5px;margin-top: 9px;
+}
 .todo-header {
     font-weight: 600;
     font-size: 1.2em;
