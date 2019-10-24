@@ -25,11 +25,14 @@ var vm = {
     loadTodos: ()=>{
         vm.errorMessage = null;
         vm.todos = null;
-        return ajaxJson("todos.wcvue",null,
-            (todos) => vm.todos = todos;                                            
-            (error)=> vm.setError(error));
+        return ajaxJson("todos.wcvue",
+            null,
+            (todos) => vm.todos = todos,                                            
+            (error)=> vm.setError(error)
+        );
     },
     toggleCompleted: (todo)=> {
+        debugger;
         vm.errorMessage = null;
         var newStatus = !todo.completed;
         ajaxJson("toggleTodo.wcvue",

@@ -19,8 +19,7 @@
 *** 
 ***      Pass:  lcType:         "IIS"
 ***                             "IISEXPRESS"
-***                             "BROWSERSYNC"
-***                             "BROWSERSYNCIISEXPRESS"
+***                             "WEBCONNECTIONWEBSERVER"
 ***                             "NONE" or "SERVER"
 *** 
 ***             llNoBrowser:    If .T. doesn't open a browser window
@@ -29,7 +28,8 @@
 *** 
 ***  LAUNCH()                        - Launches IIS and opens browser
 ***  LAUNCH("IISEXPRESS")            - Launches IIS Express & opens browser
-***  LAUNCH("IIS",.T.)        - Launch IIS and don't open browser 
+***  LAUNCH("WEBCONNECTIONWEBSERVER")            - Launches local .NET Core Web Server
+***  LAUNCH("IIS",.T.)               - Launch IIS and don't open browser 
 ***  LAUNCH("NONE")                  - Just launch the Server
 *********************************************************************************
 LPARAMETER lcType, llNoBrowser
@@ -37,14 +37,17 @@ LOCAL lcUrl, lcLocalUrl, llIsIISExpress, lcAppName, ;
       lcScriptMap, lcFiles, lcWcPath, lcVirtual
 
 *** Generated Defaults
-lcVirtual = "Vue"
-lcAppName = "Vue"
+lcVirtual = "vue"
+lcAppName = "vue"
 lcScriptMap = "wcvue"
-lcWcPath = ADDBS("C:\WEBCONNECTION\FOX\")
+lcWcPath = ADDBS(LOWER(SYS(5) + CURDIR()))
 lcWebPath = LOWER(FULLPATH("..\web"))
-lcIisDomain = "localhost"                && Change manually if you use a different domain with IIS
+	
+lcDotnetServerPath = lower(FULLPATH("..\WebConnectionWebServer\"))
+lcServerName = "IIS"
+lcServerCommand = ""
+lcIisDomain = "localhost"
 llIisExpress = .F.
-
 
 IF VARTYPE(lcType) = "L"
    IF llIISExpress 
@@ -56,12 +59,14 @@ ELSE
    lcType = UPPER(lcType)
    DO CASE 
       CASE lcType = "IIS"
-      CASE lcType = "BROWSERSYNC"
-      CASE lcType = "IISEXPRESS"
-      CASE lcType = "BROWSERSYNCIISEXPRESS"
-        llNoBrowser = .T.  && Browser Sync will do it
+      CASE lcType = "IISEXPRESS"      
+      	lcServerName = "IIS Express"
+     CASE lcType == "DOTNETCORE" OR lcType == "WEBCONNECTIONWEBSERVER"
+	lcServerName = ".NET Core Web Connection Web Server"
+        lcType = "WEBCONNECTIONWEBSERVER"
       CASE lcType = "NONE" OR lcType = "SERVER"
-        llNoBrowser = .T.
+      	lcServerName = "NONE"
+      	llNoBrowser = .T.
         lcType = "IIS"  && doesn't launch anyting
       CASE lcType = "HELP"
        DO Console WITH "GOURL","https://webconnection.west-wind.com/docs/_5h60q6vu5.htm#launch-modes"
@@ -71,6 +76,7 @@ ENDIF
 
 llNoBrowser = IIF(EMPTY(llNoBrowser),.f.,.t.)
 
+CLEAR
 
 ********************************
 *** SET UP ENVIRONMENT AND PATHS
@@ -93,8 +99,10 @@ SET PATH TO (lcWcPath + "tools") ADDITIVE
 *** START UP WEB SERVER (IIS Express and BrowserSync only)
 ***********************************************************
 lcUrl = "http://localhost/" + lcVirtual
+lcServerCommand = ""
 
-IF lcType == "IISEXPRESS" OR lcType == "BROWSERSYNCIISEXPRESS"
+
+IF lcType == "IISEXPRESS"
     *** Launch IIS Express on Port 7000
     DO CONSOLE WITH "IISEXPRESS",lcWebPath,7000,"/","NONAVIGATE"    
     lcUrl = STRTRAN(lcUrl,"localhost/" + lcVirtual,"localhost:7000")
@@ -104,20 +112,9 @@ IF lcType == "IIS"
        lcUrl = STRTRAN(lcUrl,"/localhost/","/" + lcIisDomain +"/")
    ENDIF
 ENDIF
-
-
-*** BROWSERSYNC or BROWSERSYNCIISEXPRESS Options
-IF AT("BROWSERSYNC",lcType) > 0
-   IF AT("IISEXPRESS",lcType) >0
-      lcProxyUrl = "localhost:7000"
-      lcUrl = "http://localhost:3000"
-   ELSE
-       lcProxyUrl = lcIisDomain + "/" + lcVirtual
-	   lcUrl = "http://localhost:3000/" + lcVirtual
-   ENDIF
-   
-   lcFiles = "**/*." + lcScriptMap + ", **/*.wcs, **/*.wc, **/*.md, **/*.css, **/*.js, **/*.ts, **/*.htm*"
-   LaunchBrowserSync(lcProxyUrl,lcWebPath,lcFiles)
+IF lcType == "WEBCONNECTIONWEBSERVER"
+   DO CONSOLE WITH "WEBCONNECTIONWEBSERVER",lcWebPath
+   lcUrl = STRTRAN(lcUrl,"localhost/" + lcVirtual,"localhost:5200")
 ENDIF
 
 
@@ -134,19 +131,34 @@ _Screen.FontSize = 19
 **********************
 *** LAUNCH WEB BROWSER
 **********************
+
+lcServerName = "IIS"
+
 ? "Running:" 
-? "DO Launch.prg " + IIF(lcType == "IISEXPRESS" OR lcType == "BROWSERSYNCIISEXPESS",;
-                        [WITH "IISEXPRESS"],;
-                        [WITH "IIS"])
+DO CASE
+CASE lcType == "WEBCONNECTIONWEBSERVER"
+  ? [DO Launch.prg with "WEBCONNECTIONWEBSERVER"]
+  lcServerName = ".NET Core Web Connection Web Server"
+CASE ATC("IISEXPRESS",lcType) > 0 
+  ? [DO Launch.prg with "IISEXPRESS"]
+  lcServerName = "IIS Express"
+OTHERWISE  
+  ? [DO Launch.prg with "IIS"]
+ENDCASE
+                        
 ? ""
 ? ""
 ? "Web Server used:"
-? IIF(lcType == "IISEXPRESS","IIS Express","IIS")
-?
+? lcServerName 
+
 IF lcType == "IISEXPRESS"
    ? "Launched IISExpress with:"
    ? [DO console WITH "IISExpress","..\Web",7000]
    ?
+ENDIF
+IF lcType == "WEBCONNECTIONWEBSERVER"
+   ? "Launched .NET Core Web Server with:"
+   ? lcServerCommand
 ENDIF
 
 IF !llNoBrowser
@@ -167,58 +179,3 @@ ENDIF
 DO ( lcAppName + "Main.prg")
 
 RETURN
-
-************************************************************************
-*  BrowserSync
-****************************************
-***  Function: Live Reload of Web Browser on save operations
-***            for files in the Web folder. Make a change,
-***            save, and the browser reloads the active page
-***            Typically runs on:
-***            http://localhost:3000/Vue 
-***    Assume: Install Browser Sync requires Node/NPM:
-***            npm install -g browser-sync
-***            https://browsersync.io/
-***      Pass: lcUrl   -  your local Web url
-***            lcPath  -  local path to the Web site
-***            lcFiles -  file specs for files to monitor
-***            llLaunchBrowser - if .T. launches the browser
-***            all parameters are optional
-************************************************************************
-FUNCTION LaunchBrowserSync(lcUrl, lcPath, lcFiles, llLaunchBrowser)
-LOCAL lcBrowserSyncCommand
-
-IF EMPTY(lcUrl)
-   *** Using IIS
-   lcUrl = "localhost/Vue"
-
-   *** Using IIS Express
-   lcUrl = "localhost:7000"
-ENDIF
-
-
-IF EMPTY(lcPath)
-   lcPath = lower(fullpath("..\web"))
-ELSE  
-   lcPath = lower(fullpath(lcPath))
-ENDIF
-
-IF EMPTY(lcFiles)
-   lcFiles = "**/*.wcvue, **/*.wcs, **/*.wc, **/*.md, **/*.css, **/*.js, **/*.ts, **/*.htm*"
-ENDIF
-
-lcOldPath = CURDIR()
-CD (lcPath)
-
-* start - removed auto-start
-lcBrowserSyncCommand = "browser-sync start " +;
-                       "--proxy " + lcUrl + " " + ;
-                       "--files '" + lcFiles + "'"
-                       
-RUN /n cmd /k &lcBrowserSyncCommand
-
-WAIT WINDOW "" TIMEOUT 1.5
-CD (lcOldPath)
-
-ENDFUNC
-*   BrowserSync
